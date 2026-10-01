@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结局二 - 青山实中自杀事件</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100%;
+    background: #06080b;
+    font-family: "Songti SC", "SimSun", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+    color: #c9ccd1;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 40px 16px;
+    overflow-x: hidden;
+  }
+
+  /* ============ 背景层（偏冷、偏暗红） ============ */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 85% 60% at 50% 25%, rgba(40, 62, 78, 0.38), transparent 72%),
+      radial-gradient(ellipse 65% 50% at 50% 108%, rgba(120, 32, 36, 0.28), transparent 72%),
+      linear-gradient(180deg, #05070a 0%, #0b1015 50%, #050406 100%);
+    z-index: 0;
+  }
+
+  .bg::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: grain 8s steps(10) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-4%, -3%); }
+    30% { transform: translate(3%, -5%); }
+    50% { transform: translate(-3%, 4%); }
+    70% { transform: translate(4%, 2%); }
+    90% { transform: translate(-2%, -2%); }
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 240px 80px #000, inset 0 0 100px 25px rgba(0,0,0,.85);
+    z-index: 1;
+  }
+
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: .6;
+    z-index: 1;
+  }
+
+  /* ============ 主内容 ============ */
+  main {
+    position: relative;
+    z-index: 2;
+    width: min(760px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ending-tag {
+    font-size: clamp(12px, 1.3vw, 13.5px);
+    letter-spacing: .42em;
+    text-indent: .42em;
+    color: #7f8a94;
+    opacity: 0;
+    animation: fadeUp 1.4s ease .2s forwards;
+  }
+
+  .title {
+    margin-top: 14px;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 600;
+    letter-spacing: .22em;
+    text-indent: .22em;
+    color: #ece9e6;
+    line-height: 1.4;
+    text-shadow:
+      0 0 24px rgba(200, 110, 110, .30),
+      0 0 80px rgba(160, 70, 70, .18);
+    opacity: 0;
+    animation: titleIn 1.9s cubic-bezier(.2, .7, .3, 1) .45s forwards;
+  }
+
+  @keyframes titleIn {
+    from { opacity: 0; transform: translateY(-14px); letter-spacing: .38em; filter: blur(7px); }
+    to   { opacity: 1; transform: translateY(0);   letter-spacing: .22em; filter: blur(0); }
+  }
+
+  .divider {
+    width: min(460px, 74%);
+    height: 1px;
+    margin: 26px 0 0;
+    background: linear-gradient(90deg, transparent, rgba(200, 130, 130, .48), transparent);
+    opacity: 0;
+    animation: fadeIn 1.6s ease 1.1s forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 正文 */
+  .story {
+    margin-top: 34px;
+    width: 100%;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .story p {
+    font-size: clamp(14.5px, 1.75vw, 17px);
+    line-height: 2.15;
+    color: #a6adb5;
+    text-align: justify;
+    text-indent: 2em;
+    letter-spacing: .025em;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 1.15s ease, transform 1.15s ease, color 1s ease;
+  }
+
+  .story p.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .story p:hover { color: #c6ccd3; }
+
+  /* 最后一段：黑透了的收束 */
+  .story p.final {
+    color: #b9706f;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-shadow: 0 0 22px rgba(190, 80, 80, .28);
+  }
+
+  .story p.final.show {
+    color: #d98c8a;
+  }
+
+  /* 支持作者区 */
+  .support {
+    margin-top: 52px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+
+  .support.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .support-line {
+    width: min(380px, 66%);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(215, 180, 130, .42), transparent);
+    margin-bottom: 6px;
+  }
+
+  .support-text {
+    font-size: clamp(13px, 1.5vw, 15px);
+    letter-spacing: .08em;
+    color: #c8b995;
+    text-shadow: 0 0 18px rgba(200, 170, 110, .22);
+  }
+
+  .author {
+    font-size: clamp(12.5px, 1.4vw, 14.5px);
+    letter-spacing: .06em;
+    color: #7d8892;
+    line-height: 1.9;
+  }
+
+  .author a {
+    color: #8fb6cf;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(143, 182, 207, .32);
+    padding-bottom: 1px;
+    transition: color .3s ease, border-color .3s ease, text-shadow .3s ease;
+    word-break: break-all;
+  }
+
+  .author a:hover {
+    color: #c6e2f2;
+    border-color: rgba(198, 226, 242, .7);
+    text-shadow: 0 0 14px rgba(140, 200, 235, .55);
+  }
+
+  /* 结尾小字 */
+  .fin {
+    margin-top: 46px;
+    font-size: clamp(12px, 1.3vw, 13.5px);
+    letter-spacing: .5em;
+    text-indent: .5em;
+    color: #5b646d;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+  }
+
+  .fin.show { opacity: 1; }
+
+  @media (max-width: 520px) {
+    body { padding: 30px 14px; }
+    .story { gap: 18px; margin-top: 26px; }
+    .support { margin-top: 40px; }
+    .fin { margin-top: 36px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main id="main">
+    <div class="ending-tag">结局二</div>
+    <h1 class="title">青山的天黑了</h1>
+    <div class="divider"></div>
+
+    <div class="story" id="story">
+      <p>你直接向警察举报了林圻等三人，他们很快就被警察给抓走了。</p>
+      <p>常陆军、常空军、常海军三人通过一系列手段运作，将三人的正当防卫改为故意杀人罪，三人被判了十年有期徒刑。</p>
+      <p class="final">而常海军等人仍逍遥法外，甚至越爬越高，青山市的天彻底黑了。</p>
+    </div>
+
+    <div class="support" id="support">
+      <div class="support-line"></div>
+      <p class="support-text">喜欢本游戏的话可以支持一下作者哦❤️</p>
+      <p class="author">
+        作者：bilibili@寂汲<br>
+        <a href="https://space.bilibili.com/1335075134" target="_blank" rel="noopener">https://space.bilibili.com/1335075134</a>
+      </p>
+    </div>
+
+    <div class="fin" id="fin">— 完 —</div>
+  </main>
+
+<script>
+  (function () {
+    const paragraphs = document.querySelectorAll('#story p');
+    const support    = document.getElementById('support');
+    const fin        = document.getElementById('fin');
+
+    const START_DELAY = 1400;   // 首段出现延迟
+    const STEP        = 850;    // 段落间隔（压抑、稍慢）
+
+    paragraphs.forEach((p, i) => {
+      setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
+    });
+
+    const afterStory = START_DELAY + paragraphs.length * STEP;
+
+    setTimeout(() => support.classList.add('show'), afterStory + 400);
+    setTimeout(() => fin.classList.add('show'), afterStory + 1400);
+  })();
+</script>
+
+</body>
+</html>
