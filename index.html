@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青山实中自杀事件</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #06080b;
+    overflow: hidden;
+    font-family: "Songti SC", "SimSun", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+    color: #c9ccd1;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* ============ 背景层 ============ */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 85% 60% at 50% 28%, rgba(40, 68, 86, 0.38), transparent 72%),
+      radial-gradient(ellipse 60% 45% at 50% 105%, rgba(88, 22, 28, 0.20), transparent 72%),
+      linear-gradient(180deg, #05070a 0%, #0a0f15 50%, #04060a 100%);
+  }
+
+  /* 颗粒噪点 */
+  .bg::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: grain 8s steps(10) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-4%, -3%); }
+    30% { transform: translate(3%, -5%); }
+    50% { transform: translate(-3%, 4%); }
+    70% { transform: translate(4%, 2%); }
+    90% { transform: translate(-2%, -2%); }
+  }
+
+  /* 暗角 */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 220px 70px #000, inset 0 0 90px 20px rgba(0,0,0,.8);
+  }
+
+  /* 极淡扫描线 */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.022) 0px,
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: .6;
+  }
+
+  /* ============ 主内容 ============ */
+  main {
+    position: relative;
+    z-index: 2;
+    width: min(760px, 88vw);
+    max-height: 94vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0;
+    transition: opacity .85s ease, filter .85s ease;
+  }
+
+  .title {
+    font-size: clamp(26px, 4.6vw, 46px);
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-indent: .14em;
+    color: #e9e7e3;
+    line-height: 1.4;
+    text-shadow:
+      0 0 22px rgba(130, 180, 210, .30),
+      0 0 70px rgba(120, 170, 205, .14);
+    opacity: 0;
+    animation: titleIn 1.8s cubic-bezier(.2, .7, .3, 1) .25s forwards;
+  }
+
+  @keyframes titleIn {
+    from { opacity: 0; transform: translateY(-14px); letter-spacing: .32em; filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);   letter-spacing: .14em; filter: blur(0); }
+  }
+
+  .divider {
+    width: min(420px, 70%);
+    height: 1px;
+    margin: 22px 0 4px;
+    background: linear-gradient(90deg, transparent, rgba(150, 190, 215, .45), transparent);
+    opacity: 0;
+    animation: fadeIn 1.6s ease 1s forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* 故事文本 */
+  .story {
+    width: 100%;
+    margin-top: 26px;
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 2px 10px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(140, 180, 205, .25) transparent;
+  }
+
+  .story::-webkit-scrollbar { width: 4px; }
+  .story::-webkit-scrollbar-track { background: transparent; }
+  .story::-webkit-scrollbar-thumb {
+    background: rgba(140, 180, 205, .22);
+    border-radius: 4px;
+  }
+
+  .story p {
+    font-size: clamp(13.5px, 1.65vw, 16.5px);
+    line-height: 2.05;
+    color: #a5adb5;
+    text-align: justify;
+    text-indent: 2em;
+    letter-spacing: .02em;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1.15s ease, transform 1.15s ease, color 1s ease;
+  }
+
+  .story p.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .story p:hover { color: #c6ced6; }
+
+  /* ============ 按钮区 ============ */
+  .enter-wrap {
+    margin-top: 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .enter-wrap.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .enter-btn {
+    position: relative;
+    font-family: inherit;
+    font-size: clamp(15px, 1.6vw, 17px);
+    letter-spacing: .24em;
+    text-indent: .24em;
+    color: #d6dde4;
+    padding: 15px 48px;
+    background: linear-gradient(180deg, rgba(32, 46, 58, .92), rgba(14, 20, 27, .92));
+    border: 1px solid rgba(140, 180, 205, .32);
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+    transition: color .35s ease, border-color .35s ease, box-shadow .4s ease,
+                letter-spacing .4s ease, text-indent .4s ease, background .4s ease;
+  }
+
+  .enter-btn::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1px solid rgba(140, 190, 220, .28);
+    border-radius: 2px;
+    pointer-events: none;
+    animation: pulseGlow 3.6s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: .3; box-shadow: 0 0 0 rgba(110, 170, 210, 0); }
+    50%      { opacity: .85; box-shadow: 0 0 18px rgba(110, 170, 210, .45); }
+  }
+
+  .enter-btn:hover {
+    color: #ffffff;
+    letter-spacing: .3em;
+    text-indent: .3em;
+    border-color: rgba(175, 220, 245, .85);
+    background: linear-gradient(180deg, rgba(46, 66, 82, .95), rgba(20, 30, 40, .95));
+    box-shadow: 0 0 26px rgba(110, 170, 210, .35), inset 0 0 20px rgba(110, 170, 210, .12);
+  }
+
+  .enter-btn:active {
+    transform: translateY(1px) scale(.995);
+  }
+
+  .hint {
+    font-size: clamp(11px, 1.2vw, 12.5px);
+    letter-spacing: .1em;
+    color: #5a636c;
+    text-shadow: 0 0 12px rgba(0, 0, 0, .8);
+  }
+
+  /* ============ 转场遮罩 ============ */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .9s ease;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .overlay-text {
+    font-size: 15px;
+    letter-spacing: .28em;
+    text-indent: .28em;
+    color: #7d8a95;
+    opacity: 0;
+    transition: opacity .8s ease .35s;
+  }
+
+  .overlay.active .overlay-text { opacity: 1; }
+
+  .overlay-dots::after {
+    content: "";
+    animation: dots 1.6s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+    0%   { content: ""; }
+    25%  { content: "·"; }
+    50%  { content: "··"; }
+    75%  { content: "···"; }
+    100% { content: ""; }
+  }
+
+  .loadbar {
+    width: 150px;
+    height: 1px;
+    background: rgba(120, 150, 175, .18);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .loadbar::after {
+    content: "";
+    position: absolute;
+    left: -40%;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(150, 200, 230, .8), transparent);
+    animation: slide 1.6s ease-in-out infinite;
+  }
+
+  @keyframes slide {
+    to { left: 110%; }
+  }
+
+  @media (max-width: 520px) {
+    .story { max-height: 42vh; gap: 12px; }
+    .enter-btn { padding: 13px 32px; }
+    .enter-wrap { margin-top: 26px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main id="main">
+    <h1 class="title">《青山实中自杀事件》</h1>
+    <div class="divider"></div>
+
+    <div class="story" id="story">
+      <p>我叫林逸，是一位作家，从小在农村长大，后来为了陪我弟读书全家搬到青山市。</p>
+      <p>我有一个弟弟，叫林圻，小学初中都是在农村上的，经过不懈努力考上了青山市实验高中。</p>
+      <p>最近，青山市实验高中两天发生了两起学生自杀事件。我在校园论坛里看到有人讨论这件事，就向我弟弟打听，弟弟却只字不提，刻意回避这件事。</p>
+      <p>而且我发现我的弟弟最近的表现十分奇怪，完全没有了往日的活力，整天精神萎靡。</p>
+      <p>我觉得这件事十分蹊跷，可以作为我的写作素材，于是我开始着手调查这件事。</p>
+    </div>
+
+    <div class="enter-wrap" id="enterWrap">
+      <button class="enter-btn" id="enterBtn">点击进入论坛</button>
+      <p class="hint">论坛中部分帖子被隐藏，只能通过搜索找到</p>
+    </div>
+  </main>
+
+  <!-- 转场 -->
+  <div class="overlay" id="overlay">
+    <div class="loadbar"></div>
+    <div class="overlay-text overlay-dots">正在进入论坛</div>
+  </div>
+
+<script>
+  (function () {
+    const paragraphs = document.querySelectorAll('#story p');
+    const enterWrap  = document.getElementById('enterWrap');
+    const enterBtn   = document.getElementById('enterBtn');
+    const overlay    = document.getElementById('overlay');
+    const main       = document.getElementById('main');
+
+    const START_DELAY = 900;   // 首段出现延迟
+    const STEP        = 620;   // 段落间隔
+
+    // 逐段淡入
+    paragraphs.forEach((p, i) => {
+      setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
+    });
+
+    // 按钮最后浮现
+    const btnDelay = START_DELAY + paragraphs.length * STEP + 500;
+    setTimeout(() => enterWrap.classList.add('show'), btnDelay);
+
+    // 点击进入论坛
+    let entering = false;
+    enterBtn.addEventListener('click', function () {
+      if (entering) return;
+      entering = true;
+
+      // 主内容淡出模糊
+      main.style.opacity = '0';
+      main.style.filter = 'blur(6px)';
+
+      // 显示转场遮罩
+      setTimeout(() => {
+        overlay.classList.add('active');
+      }, 260);
+
+      // 延迟跳转到论坛
+      setTimeout(() => {
+        window.location.href = 'https://qsszlt.pages.dev';
+      }, 1800);
+    });
+
+    // 键盘 Enter / 空格 也可触发
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && !entering) {
+        enterBtn.click();
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
