@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>青山实中自杀事件</title>
+<title>录音 - 青山实中自杀事件</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -32,7 +32,6 @@
       linear-gradient(180deg, #05070a 0%, #0a0f15 50%, #04060a 100%);
   }
 
-  /* 颗粒噪点 */
   .bg::after {
     content: "";
     position: absolute;
@@ -53,7 +52,6 @@
     90% { transform: translate(-2%, -2%); }
   }
 
-  /* 暗角 */
   .vignette {
     position: fixed;
     inset: 0;
@@ -61,7 +59,6 @@
     box-shadow: inset 0 0 220px 70px #000, inset 0 0 90px 20px rgba(0,0,0,.8);
   }
 
-  /* 极淡扫描线 */
   .scanlines {
     position: fixed;
     inset: 0;
@@ -80,111 +77,121 @@
   main {
     position: relative;
     z-index: 2;
-    width: min(760px, 88vw);
-    max-height: 94vh;
+    width: min(600px, 88vw);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 20px 0;
-    transition: opacity .85s ease, filter .85s ease;
   }
 
   .title {
-    font-size: clamp(26px, 4.6vw, 46px);
+    font-size: clamp(22px, 3.6vw, 34px);
     font-weight: 600;
-    letter-spacing: .14em;
-    text-indent: .14em;
+    letter-spacing: .18em;
+    text-indent: .18em;
     color: #e9e7e3;
     line-height: 1.4;
     text-shadow:
       0 0 22px rgba(130, 180, 210, .30),
       0 0 70px rgba(120, 170, 205, .14);
     opacity: 0;
-    animation: titleIn 1.8s cubic-bezier(.2, .7, .3, 1) .25s forwards;
+    animation: titleIn 1.6s cubic-bezier(.2, .7, .3, 1) .2s forwards;
   }
 
   @keyframes titleIn {
     from { opacity: 0; transform: translateY(-14px); letter-spacing: .32em; filter: blur(6px); }
-    to   { opacity: 1; transform: translateY(0);   letter-spacing: .14em; filter: blur(0); }
+    to   { opacity: 1; transform: translateY(0);   letter-spacing: .18em; filter: blur(0); }
   }
 
   .divider {
-    width: min(420px, 70%);
+    width: min(360px, 70%);
     height: 1px;
-    margin: 22px 0 4px;
+    margin: 22px 0 0;
     background: linear-gradient(90deg, transparent, rgba(150, 190, 215, .45), transparent);
     opacity: 0;
-    animation: fadeIn 1.6s ease 1s forwards;
+    animation: fadeIn 1.6s ease .9s forwards;
   }
 
   @keyframes fadeIn { to { opacity: 1; } }
 
-  /* 故事文本 */
-  .story {
-    width: 100%;
-    margin-top: 26px;
-    max-height: 46vh;
-    overflow-y: auto;
-    padding: 2px 10px 4px;
+  /* 录音波形装饰 */
+  .wave {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(140, 180, 205, .25) transparent;
-  }
-
-  .story::-webkit-scrollbar { width: 4px; }
-  .story::-webkit-scrollbar-track { background: transparent; }
-  .story::-webkit-scrollbar-thumb {
-    background: rgba(140, 180, 205, .22);
-    border-radius: 4px;
-  }
-
-  .story p {
-    font-size: clamp(13.5px, 1.65vw, 16.5px);
-    line-height: 2.05;
-    color: #a5adb5;
-    text-align: justify;
-    text-indent: 2em;
-    letter-spacing: .02em;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 1.15s ease, transform 1.15s ease, color 1s ease;
-  }
-
-  .story p.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .story p:hover { color: #c6ced6; }
-
-  /* ============ 按钮区 ============ */
-  .enter-wrap {
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 46px;
     margin-top: 34px;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .wave.show { opacity: 1; }
+
+  .wave span {
+    display: block;
+    width: 3px;
+    height: 8px;
+    border-radius: 2px;
+    background: rgba(140, 190, 220, .45);
+    transition: height .2s ease, background .3s ease;
+  }
+
+  /* 播放中波形跳动 */
+  .wave.playing span {
+    background: rgba(170, 220, 250, .9);
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  .wave.playing span:nth-child(1)  { animation-delay: 0s; }
+  .wave.playing span:nth-child(2)  { animation-delay: .1s; }
+  .wave.playing span:nth-child(3)  { animation-delay: .2s; }
+  .wave.playing span:nth-child(4)  { animation-delay: .3s; }
+  .wave.playing span:nth-child(5)  { animation-delay: .4s; }
+  .wave.playing span:nth-child(6)  { animation-delay: .3s; }
+  .wave.playing span:nth-child(7)  { animation-delay: .2s; }
+  .wave.playing span:nth-child(8)  { animation-delay: .1s; }
+  .wave.playing span:nth-child(9)  { animation-delay: .15s; }
+  .wave.playing span:nth-child(10) { animation-delay: .25s; }
+  .wave.playing span:nth-child(11) { animation-delay: .35s; }
+  .wave.playing span:nth-child(12) { animation-delay: .45s; }
+
+  @keyframes bounce {
+    0%, 100% { height: 8px; }
+    50%      { height: 34px; }
+  }
+
+  .wave span:nth-child(odd) { height: 14px; }
+  .wave span:nth-child(even) { height: 22px; }
+
+  /* ============ 按钮 ============ */
+  .btn-group {
+    margin-top: 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 18px;
+    width: 100%;
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 1s ease, transform 1s ease;
   }
 
-  .enter-wrap.show {
+  .btn-group.show {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .enter-btn {
+  .btn {
     position: relative;
     font-family: inherit;
     font-size: clamp(15px, 1.6vw, 17px);
     letter-spacing: .24em;
     text-indent: .24em;
     color: #d6dde4;
-    padding: 15px 48px;
+    padding: 15px 0;
+    width: min(340px, 78vw);
     background: linear-gradient(180deg, rgba(32, 46, 58, .92), rgba(14, 20, 27, .92));
     border: 1px solid rgba(140, 180, 205, .32);
     border-radius: 2px;
@@ -194,7 +201,7 @@
                 letter-spacing .4s ease, text-indent .4s ease, background .4s ease;
   }
 
-  .enter-btn::after {
+  .btn::after {
     content: "";
     position: absolute;
     inset: -1px;
@@ -209,7 +216,7 @@
     50%      { opacity: .85; box-shadow: 0 0 18px rgba(110, 170, 210, .45); }
   }
 
-  .enter-btn:hover {
+  .btn:hover {
     color: #ffffff;
     letter-spacing: .3em;
     text-indent: .3em;
@@ -218,89 +225,42 @@
     box-shadow: 0 0 26px rgba(110, 170, 210, .35), inset 0 0 20px rgba(110, 170, 210, .12);
   }
 
-  .enter-btn:active {
+  .btn:active {
     transform: translateY(1px) scale(.995);
   }
 
+  /* 返回按钮风格稍淡 */
+  .btn.back {
+    color: #97a2ab;
+    border-color: rgba(120, 150, 175, .22);
+    background: linear-gradient(180deg, rgba(22, 32, 40, .85), rgba(10, 15, 20, .85));
+  }
+
+  .btn.back::after {
+    animation: none;
+    opacity: .25;
+  }
+
+  .btn.back:hover {
+    color: #cfd8df;
+    border-color: rgba(150, 190, 215, .6);
+  }
+
   .hint {
+    margin-top: 26px;
     font-size: clamp(11px, 1.2vw, 12.5px);
     letter-spacing: .1em;
     color: #5a636c;
     text-shadow: 0 0 12px rgba(0, 0, 0, .8);
-  }
-
-  /* ============ 转场遮罩 ============ */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity .9s ease;
+    transition: opacity 1s ease;
   }
 
-  .overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .overlay-text {
-    font-size: 15px;
-    letter-spacing: .28em;
-    text-indent: .28em;
-    color: #7d8a95;
-    opacity: 0;
-    transition: opacity .8s ease .35s;
-  }
-
-  .overlay.active .overlay-text { opacity: 1; }
-
-  .overlay-dots::after {
-    content: "";
-    animation: dots 1.6s steps(4, end) infinite;
-  }
-
-  @keyframes dots {
-    0%   { content: ""; }
-    25%  { content: "·"; }
-    50%  { content: "··"; }
-    75%  { content: "···"; }
-    100% { content: ""; }
-  }
-
-  .loadbar {
-    width: 150px;
-    height: 1px;
-    background: rgba(120, 150, 175, .18);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .loadbar::after {
-    content: "";
-    position: absolute;
-    left: -40%;
-    top: 0;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(150, 200, 230, .8), transparent);
-    animation: slide 1.6s ease-in-out infinite;
-  }
-
-  @keyframes slide {
-    to { left: 110%; }
-  }
+  .hint.show { opacity: 1; }
 
   @media (max-width: 520px) {
-    .story { max-height: 42vh; gap: 12px; }
-    .enter-btn { padding: 13px 32px; }
-    .enter-wrap { margin-top: 26px; }
+    .btn-group { margin-top: 34px; gap: 14px; }
+    .btn { padding: 13px 0; }
   }
 </style>
 </head>
@@ -310,75 +270,97 @@
   <div class="scanlines"></div>
   <div class="vignette"></div>
 
-  <main id="main">
-    <h1 class="title">《青山实中自杀事件》</h1>
+  <main>
+    <h1 class="title">一段录音</h1>
     <div class="divider"></div>
 
-    <div class="story" id="story">
-      <p>我叫林逸，是一位作家，从小在农村长大，后来为了陪我弟读书全家搬到青山市。</p>
-      <p>我有一个弟弟，叫林圻，小学初中都是在农村上的，经过不懈努力考上了青山市实验高中。</p>
-      <p>最近，青山市实验高中两天发生了两起学生自杀事件。我在校园论坛里看到有人讨论这件事，就向我弟弟打听，弟弟却只字不提，刻意回避这件事。</p>
-      <p>而且我发现我的弟弟最近的表现十分奇怪，完全没有了往日的活力，整天精神萎靡。</p>
-      <p>我觉得这件事十分蹊跷，可以作为我的写作素材，于是我开始着手调查这件事。</p>
+    <!-- 波形装饰 -->
+    <div class="wave" id="wave">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
     </div>
 
-    <div class="enter-wrap" id="enterWrap">
-      <button class="enter-btn" id="enterBtn">点击进入论坛</button>
-      <p class="hint">论坛中部分帖子被隐藏，只能通过搜索找到</p>
+    <!-- 按钮组 -->
+    <div class="btn-group" id="btnGroup">
+      <button class="btn" id="playBtn">点击听录音</button>
+      <button class="btn back" id="backBtn">返回论坛</button>
     </div>
+
+    <p class="hint" id="hint">录音文件：record.mp3</p>
   </main>
 
-  <!-- 转场 -->
-  <div class="overlay" id="overlay">
-    <div class="loadbar"></div>
-    <div class="overlay-text overlay-dots">正在进入论坛</div>
-  </div>
+  <!-- 隐藏的音频 -->
+  <audio id="audio" src="record.mp3" preload="auto"></audio>
 
 <script>
   (function () {
-    const paragraphs = document.querySelectorAll('#story p');
-    const enterWrap  = document.getElementById('enterWrap');
-    const enterBtn   = document.getElementById('enterBtn');
-    const overlay    = document.getElementById('overlay');
-    const main       = document.getElementById('main');
+    const wave     = document.getElementById('wave');
+    const btnGroup = document.getElementById('btnGroup');
+    const hint     = document.getElementById('hint');
+    const playBtn  = document.getElementById('playBtn');
+    const backBtn  = document.getElementById('backBtn');
+    const audio    = document.getElementById('audio');
 
-    const START_DELAY = 900;   // 首段出现延迟
-    const STEP        = 620;   // 段落间隔
+    // 依次浮现
+    setTimeout(() => wave.classList.add('show'), 800);
+    setTimeout(() => btnGroup.classList.add('show'), 1200);
+    setTimeout(() => hint.classList.add('show'), 1600);
 
-    // 逐段淡入
-    paragraphs.forEach((p, i) => {
-      setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
+    /* ---------- 播放 / 暂停录音 ---------- */
+    let playing = false;
+
+    function setPlaying(state) {
+      playing = state;
+      if (state) {
+        playBtn.textContent = '暂停录音';
+        wave.classList.add('playing');
+      } else {
+        playBtn.textContent = '点击听录音';
+        wave.classList.remove('playing');
+      }
+    }
+
+    playBtn.addEventListener('click', function () {
+      if (!playing) {
+        // 从头播放（如果已结束）
+        if (audio.ended) audio.currentTime = 0;
+        const p = audio.play();
+        if (p && p.catch) {
+          p.catch(function () {
+            alert('无法播放录音，请确认 record.mp3 与本页面在同一目录下。');
+            setPlaying(false);
+          });
+        } else {
+          setPlaying(true);
+        }
+      } else {
+        audio.pause();
+        setPlaying(false);
+      }
     });
 
-    // 按钮最后浮现
-    const btnDelay = START_DELAY + paragraphs.length * STEP + 500;
-    setTimeout(() => enterWrap.classList.add('show'), btnDelay);
+    // 音频事件同步状态
+    audio.addEventListener('play',  () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => setPlaying(false));
 
-    // 点击进入论坛
-    let entering = false;
-    enterBtn.addEventListener('click', function () {
-      if (entering) return;
-      entering = true;
-
-      // 主内容淡出模糊
-      main.style.opacity = '0';
-      main.style.filter = 'blur(6px)';
-
-      // 显示转场遮罩
-      setTimeout(() => {
-        overlay.classList.add('active');
-      }, 260);
-
-      // 延迟跳转到论坛
-      setTimeout(() => {
-        window.location.href = 'https://qsszlt.pages.dev';
-      }, 1800);
+    /* ---------- 返回论坛 ---------- */
+    let leaving = false;
+    backBtn.addEventListener('click', function () {
+      if (leaving) return;
+      leaving = true;
+      audio.pause();
+      window.location.href = 'https://qsszlt.pages.dev';
     });
 
-    // 键盘 Enter / 空格 也可触发
+    /* ---------- 键盘操作 ---------- */
     document.addEventListener('keydown', function (e) {
-      if ((e.key === 'Enter' || e.key === ' ') && !entering) {
-        enterBtn.click();
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (!playing) { e.preventDefault(); playBtn.click(); }
+      }
+      if (e.key === 'Escape') {
+        backBtn.click();
       }
     });
   })();
