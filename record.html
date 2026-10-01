@@ -77,7 +77,7 @@
   main {
     position: relative;
     z-index: 2;
-    width: min(600px, 88vw);
+    width: min(620px, 90vw);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -115,14 +115,14 @@
 
   @keyframes fadeIn { to { opacity: 1; } }
 
-  /* 录音波形装饰 */
+  /* 波形装饰 */
   .wave {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
     height: 46px;
-    margin-top: 34px;
+    margin-top: 30px;
     opacity: 0;
     transition: opacity 1s ease;
   }
@@ -132,11 +132,13 @@
   .wave span {
     display: block;
     width: 3px;
-    height: 8px;
     border-radius: 2px;
     background: rgba(140, 190, 220, .45);
     transition: height .2s ease, background .3s ease;
   }
+
+  .wave span:nth-child(odd)  { height: 14px; }
+  .wave span:nth-child(even) { height: 22px; }
 
   /* 播放中波形跳动 */
   .wave.playing span {
@@ -162,12 +164,100 @@
     50%      { height: 34px; }
   }
 
-  .wave span:nth-child(odd) { height: 14px; }
-  .wave span:nth-child(even) { height: 22px; }
+  /* ============ 进度条 ============ */
+  .progress-wrap {
+    width: 100%;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .progress-wrap.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .time {
+    flex: 0 0 auto;
+    width: 44px;
+    font-size: 12.5px;
+    letter-spacing: .06em;
+    color: #6e7a85;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+
+  .time.left  { text-align: right; }
+  .time.right { text-align: left; }
+
+  .progress {
+    position: relative;
+    flex: 1;
+    height: 20px;              /* 加大热区，方便点按 */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .progress-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(120, 150, 175, .18);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(105, 165, 205, .75), rgba(165, 215, 245, .95));
+    box-shadow: 0 0 12px rgba(120, 185, 225, .35);
+    transition: width .1s linear;
+  }
+
+  .progress-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #d3ebf9;
+    box-shadow: 0 0 10px rgba(140, 200, 235, .85), 0 0 3px rgba(255, 255, 255, .6);
+    transform: translate(-50%, -50%);
+    transition: left .1s linear, transform .2s ease, box-shadow .2s ease;
+    pointer-events: none;
+  }
+
+  .progress:hover .progress-thumb {
+    transform: translate(-50%, -50%) scale(1.25);
+    box-shadow: 0 0 16px rgba(160, 215, 250, .95), 0 0 5px rgba(255, 255, 255, .8);
+  }
+
+  .progress.dragging .progress-fill,
+  .progress.dragging .progress-thumb {
+    transition: none;
+  }
+
+  .progress.dragging .progress-thumb {
+    transform: translate(-50%, -50%) scale(1.4);
+    box-shadow: 0 0 20px rgba(170, 225, 255, 1), 0 0 6px rgba(255, 255, 255, .9);
+  }
 
   /* ============ 按钮 ============ */
   .btn-group {
-    margin-top: 44px;
+    margin-top: 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -229,7 +319,6 @@
     transform: translateY(1px) scale(.995);
   }
 
-  /* 返回按钮风格稍淡 */
   .btn.back {
     color: #97a2ab;
     border-color: rgba(120, 150, 175, .22);
@@ -247,7 +336,7 @@
   }
 
   .hint {
-    margin-top: 26px;
+    margin-top: 24px;
     font-size: clamp(11px, 1.2vw, 12.5px);
     letter-spacing: .1em;
     color: #5a636c;
@@ -259,7 +348,10 @@
   .hint.show { opacity: 1; }
 
   @media (max-width: 520px) {
-    .btn-group { margin-top: 34px; gap: 14px; }
+    .wave { margin-top: 22px; }
+    .progress-wrap { margin-top: 22px; gap: 10px; }
+    .time { width: 38px; font-size: 11.5px; }
+    .btn-group { margin-top: 28px; gap: 14px; }
     .btn { padding: 13px 0; }
   }
 </style>
@@ -281,6 +373,18 @@
       <span></span><span></span><span></span><span></span>
     </div>
 
+    <!-- 进度条 -->
+    <div class="progress-wrap" id="progressWrap">
+      <span class="time left" id="curTime">0:00</span>
+      <div class="progress" id="progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-thumb" id="progressThumb"></div>
+      </div>
+      <span class="time right" id="durTime">0:00</span>
+    </div>
+
     <!-- 按钮组 -->
     <div class="btn-group" id="btnGroup">
       <button class="btn" id="playBtn">点击听录音</button>
@@ -295,35 +399,63 @@
 
 <script>
   (function () {
-    const wave     = document.getElementById('wave');
-    const btnGroup = document.getElementById('btnGroup');
-    const hint     = document.getElementById('hint');
-    const playBtn  = document.getElementById('playBtn');
-    const backBtn  = document.getElementById('backBtn');
-    const audio    = document.getElementById('audio');
+    const wave         = document.getElementById('wave');
+    const progressWrap = document.getElementById('progressWrap');
+    const progress     = document.getElementById('progress');
+    const progressFill = document.getElementById('progressFill');
+    const progressThumb= document.getElementById('progressThumb');
+    const curTime      = document.getElementById('curTime');
+    const durTime      = document.getElementById('durTime');
+    const btnGroup     = document.getElementById('btnGroup');
+    const hint         = document.getElementById('hint');
+    const playBtn      = document.getElementById('playBtn');
+    const backBtn      = document.getElementById('backBtn');
+    const audio        = document.getElementById('audio');
 
-    // 依次浮现
-    setTimeout(() => wave.classList.add('show'), 800);
+    /* ---------- 依次浮现 ---------- */
+    setTimeout(() => wave.classList.add('show'), 700);
+    setTimeout(() => progressWrap.classList.add('show'), 950);
     setTimeout(() => btnGroup.classList.add('show'), 1200);
     setTimeout(() => hint.classList.add('show'), 1600);
 
-    /* ---------- 播放 / 暂停录音 ---------- */
+    /* ---------- 时间格式化 ---------- */
+    function formatTime(sec) {
+      if (!isFinite(sec) || sec < 0) sec = 0;
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    /* ---------- 更新进度 ---------- */
+    function updateProgress() {
+      const dur = audio.duration;
+      const cur = audio.currentTime || 0;
+      const pct = (isFinite(dur) && dur > 0) ? (cur / dur) * 100 : 0;
+
+      progressFill.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+      curTime.textContent = formatTime(cur);
+      if (isFinite(dur) && dur > 0) {
+        durTime.textContent = formatTime(dur);
+      }
+    }
+
+    audio.addEventListener('loadedmetadata', updateProgress);
+    audio.addEventListener('durationchange', updateProgress);
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('seeked', updateProgress);
+
+    /* ---------- 播放 / 暂停 ---------- */
     let playing = false;
 
     function setPlaying(state) {
       playing = state;
-      if (state) {
-        playBtn.textContent = '暂停录音';
-        wave.classList.add('playing');
-      } else {
-        playBtn.textContent = '点击听录音';
-        wave.classList.remove('playing');
-      }
+      playBtn.textContent = state ? '暂停录音' : '点击听录音';
+      wave.classList.toggle('playing', state);
     }
 
     playBtn.addEventListener('click', function () {
       if (!playing) {
-        // 从头播放（如果已结束）
         if (audio.ended) audio.currentTime = 0;
         const p = audio.play();
         if (p && p.catch) {
@@ -331,19 +463,71 @@
             alert('无法播放录音，请确认 record.mp3 与本页面在同一目录下。');
             setPlaying(false);
           });
-        } else {
-          setPlaying(true);
         }
       } else {
         audio.pause();
-        setPlaying(false);
       }
     });
 
-    // 音频事件同步状态
-    audio.addEventListener('play',  () => setPlaying(true));
-    audio.addEventListener('pause', () => setPlaying(false));
-    audio.addEventListener('ended', () => setPlaying(false));
+    audio.addEventListener('play',   () => setPlaying(true));
+    audio.addEventListener('pause',  () => setPlaying(false));
+    audio.addEventListener('ended',  () => { setPlaying(false); updateProgress(); });
+
+    /* ---------- 进度条拖动 / 点击跳转 ---------- */
+    let dragging = false;
+
+    function seekToClientX(clientX) {
+      const rect = progress.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      let ratio = (clientX - rect.left) / rect.width;
+      ratio = Math.max(0, Math.min(1, ratio));
+
+      if (isFinite(audio.duration) && audio.duration > 0) {
+        audio.currentTime = ratio * audio.duration;
+      }
+      // 立即反馈（不等 timeupdate）
+      progressFill.style.width = (ratio * 100) + '%';
+      progressThumb.style.left = (ratio * 100) + '%';
+      curTime.textContent = formatTime(audio.currentTime);
+    }
+
+    progress.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      progress.classList.add('dragging');
+      try { progress.setPointerCapture(e.pointerId); } catch (_) {}
+      seekToClientX(e.clientX);
+      e.preventDefault();
+    });
+
+    progress.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      seekToClientX(e.clientX);
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      progress.classList.remove('dragging');
+      try { progress.releasePointerCapture(e.pointerId); } catch (_) {}
+      updateProgress();
+    }
+
+    progress.addEventListener('pointerup', endDrag);
+    progress.addEventListener('pointercancel', endDrag);
+
+    /* ---------- 键盘：左右方向键微调 ---------- */
+    progress.tabIndex = 0;
+    progress.addEventListener('keydown', function (e) {
+      if (!isFinite(audio.duration)) return;
+      if (e.key === 'ArrowRight') {
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        e.preventDefault();
+      } else if (e.key === 'ArrowLeft') {
+        audio.currentTime = Math.max(0, audio.currentTime - 5);
+        e.preventDefault();
+      }
+      updateProgress();
+    });
 
     /* ---------- 返回论坛 ---------- */
     let leaving = false;
@@ -354,10 +538,12 @@
       window.location.href = 'https://qsszlt.pages.dev';
     });
 
-    /* ---------- 键盘操作 ---------- */
+    /* ---------- 全局键盘 ---------- */
     document.addEventListener('keydown', function (e) {
+      if (e.target === progress) return;      // 进度条上的方向键单独处理
       if (e.key === 'Enter' || e.key === ' ') {
-        if (!playing) { e.preventDefault(); playBtn.click(); }
+        e.preventDefault();
+        playBtn.click();
       }
       if (e.key === 'Escape') {
         backBtn.click();
