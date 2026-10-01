@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>录音 - 青山实中自杀事件</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #06080b;
+    overflow: hidden;
+    font-family: "Songti SC", "SimSun", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+    color: #c9ccd1;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* ============ 背景层 ============ */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 85% 60% at 50% 28%, rgba(40, 68, 86, 0.38), transparent 72%),
+      radial-gradient(ellipse 60% 45% at 50% 105%, rgba(88, 22, 28, 0.20), transparent 72%),
+      linear-gradient(180deg, #05070a 0%, #0a0f15 50%, #04060a 100%);
+  }
+
+  .bg::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: grain 8s steps(10) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-4%, -3%); }
+    30% { transform: translate(3%, -5%); }
+    50% { transform: translate(-3%, 4%); }
+    70% { transform: translate(4%, 2%); }
+    90% { transform: translate(-2%, -2%); }
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 220px 70px #000, inset 0 0 90px 20px rgba(0,0,0,.8);
+  }
+
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.022) 0px,
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: .6;
+  }
+
+  /* ============ 主内容 ============ */
+  main {
+    position: relative;
+    z-index: 2;
+    width: min(600px, 88vw);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .title {
+    font-size: clamp(22px, 3.6vw, 34px);
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-indent: .18em;
+    color: #e9e7e3;
+    line-height: 1.4;
+    text-shadow:
+      0 0 22px rgba(130, 180, 210, .30),
+      0 0 70px rgba(120, 170, 205, .14);
+    opacity: 0;
+    animation: titleIn 1.6s cubic-bezier(.2, .7, .3, 1) .2s forwards;
+  }
+
+  @keyframes titleIn {
+    from { opacity: 0; transform: translateY(-14px); letter-spacing: .32em; filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);   letter-spacing: .18em; filter: blur(0); }
+  }
+
+  .divider {
+    width: min(360px, 70%);
+    height: 1px;
+    margin: 22px 0 0;
+    background: linear-gradient(90deg, transparent, rgba(150, 190, 215, .45), transparent);
+    opacity: 0;
+    animation: fadeIn 1.6s ease .9s forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* 录音波形装饰 */
+  .wave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 46px;
+    margin-top: 34px;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .wave.show { opacity: 1; }
+
+  .wave span {
+    display: block;
+    width: 3px;
+    height: 8px;
+    border-radius: 2px;
+    background: rgba(140, 190, 220, .45);
+    transition: height .2s ease, background .3s ease;
+  }
+
+  /* 播放中波形跳动 */
+  .wave.playing span {
+    background: rgba(170, 220, 250, .9);
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  .wave.playing span:nth-child(1)  { animation-delay: 0s; }
+  .wave.playing span:nth-child(2)  { animation-delay: .1s; }
+  .wave.playing span:nth-child(3)  { animation-delay: .2s; }
+  .wave.playing span:nth-child(4)  { animation-delay: .3s; }
+  .wave.playing span:nth-child(5)  { animation-delay: .4s; }
+  .wave.playing span:nth-child(6)  { animation-delay: .3s; }
+  .wave.playing span:nth-child(7)  { animation-delay: .2s; }
+  .wave.playing span:nth-child(8)  { animation-delay: .1s; }
+  .wave.playing span:nth-child(9)  { animation-delay: .15s; }
+  .wave.playing span:nth-child(10) { animation-delay: .25s; }
+  .wave.playing span:nth-child(11) { animation-delay: .35s; }
+  .wave.playing span:nth-child(12) { animation-delay: .45s; }
+
+  @keyframes bounce {
+    0%, 100% { height: 8px; }
+    50%      { height: 34px; }
+  }
+
+  .wave span:nth-child(odd) { height: 14px; }
+  .wave span:nth-child(even) { height: 22px; }
+
+  /* ============ 按钮 ============ */
+  .btn-group {
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .btn-group.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .btn {
+    position: relative;
+    font-family: inherit;
+    font-size: clamp(15px, 1.6vw, 17px);
+    letter-spacing: .24em;
+    text-indent: .24em;
+    color: #d6dde4;
+    padding: 15px 0;
+    width: min(340px, 78vw);
+    background: linear-gradient(180deg, rgba(32, 46, 58, .92), rgba(14, 20, 27, .92));
+    border: 1px solid rgba(140, 180, 205, .32);
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+    transition: color .35s ease, border-color .35s ease, box-shadow .4s ease,
+                letter-spacing .4s ease, text-indent .4s ease, background .4s ease;
+  }
+
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1px solid rgba(140, 190, 220, .28);
+    border-radius: 2px;
+    pointer-events: none;
+    animation: pulseGlow 3.6s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: .3; box-shadow: 0 0 0 rgba(110, 170, 210, 0); }
+    50%      { opacity: .85; box-shadow: 0 0 18px rgba(110, 170, 210, .45); }
+  }
+
+  .btn:hover {
+    color: #ffffff;
+    letter-spacing: .3em;
+    text-indent: .3em;
+    border-color: rgba(175, 220, 245, .85);
+    background: linear-gradient(180deg, rgba(46, 66, 82, .95), rgba(20, 30, 40, .95));
+    box-shadow: 0 0 26px rgba(110, 170, 210, .35), inset 0 0 20px rgba(110, 170, 210, .12);
+  }
+
+  .btn:active {
+    transform: translateY(1px) scale(.995);
+  }
+
+  /* 返回按钮风格稍淡 */
+  .btn.back {
+    color: #97a2ab;
+    border-color: rgba(120, 150, 175, .22);
+    background: linear-gradient(180deg, rgba(22, 32, 40, .85), rgba(10, 15, 20, .85));
+  }
+
+  .btn.back::after {
+    animation: none;
+    opacity: .25;
+  }
+
+  .btn.back:hover {
+    color: #cfd8df;
+    border-color: rgba(150, 190, 215, .6);
+  }
+
+  .hint {
+    margin-top: 26px;
+    font-size: clamp(11px, 1.2vw, 12.5px);
+    letter-spacing: .1em;
+    color: #5a636c;
+    text-shadow: 0 0 12px rgba(0, 0, 0, .8);
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .hint.show { opacity: 1; }
+
+  @media (max-width: 520px) {
+    .btn-group { margin-top: 34px; gap: 14px; }
+    .btn { padding: 13px 0; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <main>
+    <h1 class="title">一段录音</h1>
+    <div class="divider"></div>
+
+    <!-- 波形装饰 -->
+    <div class="wave" id="wave">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- 按钮组 -->
+    <div class="btn-group" id="btnGroup">
+      <button class="btn" id="playBtn">点击听录音</button>
+      <button class="btn back" id="backBtn">返回论坛</button>
+    </div>
+
+    <p class="hint" id="hint">录音文件：record.mp3</p>
+  </main>
+
+  <!-- 隐藏的音频 -->
+  <audio id="audio" src="record.mp3" preload="auto"></audio>
+
+<script>
+  (function () {
+    const wave     = document.getElementById('wave');
+    const btnGroup = document.getElementById('btnGroup');
+    const hint     = document.getElementById('hint');
+    const playBtn  = document.getElementById('playBtn');
+    const backBtn  = document.getElementById('backBtn');
+    const audio    = document.getElementById('audio');
+
+    // 依次浮现
+    setTimeout(() => wave.classList.add('show'), 800);
+    setTimeout(() => btnGroup.classList.add('show'), 1200);
+    setTimeout(() => hint.classList.add('show'), 1600);
+
+    /* ---------- 播放 / 暂停录音 ---------- */
+    let playing = false;
+
+    function setPlaying(state) {
+      playing = state;
+      if (state) {
+        playBtn.textContent = '暂停录音';
+        wave.classList.add('playing');
+      } else {
+        playBtn.textContent = '点击听录音';
+        wave.classList.remove('playing');
+      }
+    }
+
+    playBtn.addEventListener('click', function () {
+      if (!playing) {
+        // 从头播放（如果已结束）
+        if (audio.ended) audio.currentTime = 0;
+        const p = audio.play();
+        if (p && p.catch) {
+          p.catch(function () {
+            alert('无法播放录音，请确认 record.mp3 与本页面在同一目录下。');
+            setPlaying(false);
+          });
+        } else {
+          setPlaying(true);
+        }
+      } else {
+        audio.pause();
+        setPlaying(false);
+      }
+    });
+
+    // 音频事件同步状态
+    audio.addEventListener('play',  () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => setPlaying(false));
+
+    /* ---------- 返回论坛 ---------- */
+    let leaving = false;
+    backBtn.addEventListener('click', function () {
+      if (leaving) return;
+      leaving = true;
+      audio.pause();
+      window.location.href = 'https://qsszlt.pages.dev';
+    });
+
+    /* ---------- 键盘操作 ---------- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (!playing) { e.preventDefault(); playBtn.click(); }
+      }
+      if (e.key === 'Escape') {
+        backBtn.click();
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
