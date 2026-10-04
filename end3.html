@@ -174,68 +174,6 @@
   }
   .story p.final.show { color: #d98c8a; }
 
-  /* ============ 线索完整度 ============ */
-  .clue-summary {
-    margin-top: 46px;
-    width: 100%;
-    padding: 22px 24px;
-    font-size: 12.5px;
-    color: #6e7a85;
-    letter-spacing: .08em;
-    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 1.6s ease, transform 1.6s ease;
-    border-top: 1px dashed rgba(120, 150, 175, .18);
-    border-bottom: 1px dashed rgba(120, 150, 175, .18);
-    line-height: 2;
-    text-align: center;
-  }
-
-  .clue-summary.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .clue-summary b {
-    color: #a8b3bc;
-    font-weight: 600;
-    font-size: 17px;
-    margin: 0 4px;
-    font-family: Consolas, monospace;
-    letter-spacing: .02em;
-  }
-
-  .clue-summary .progress-mini {
-    display: inline-block;
-    width: 160px;
-    height: 3px;
-    background: rgba(120, 150, 175, .15);
-    border-radius: 2px;
-    overflow: hidden;
-    vertical-align: middle;
-    margin: 0 10px;
-    position: relative;
-    top: -1px;
-  }
-
-  .clue-summary .progress-mini .fill {
-    height: 100%;
-    width: 0;
-    border-radius: 2px;
-    background: linear-gradient(90deg, #5fa878, #8fd8a8);
-    transition: width 1.4s cubic-bezier(.2, .7, .3, 1);
-  }
-
-  .clue-summary .miss {
-    display: block;
-    margin-top: 12px;
-    font-size: 11.5px;
-    color: #5a4040;
-    letter-spacing: .05em;
-    line-height: 2;
-  }
-
   .support {
     margin-top: 52px;
     width: 100%;
@@ -301,7 +239,6 @@
 
   .fin.show { opacity: 1; }
 
-  /* ============ 破第四面墙遮罩 ============ */
   .fourth-wall {
     position: fixed;
     inset: 0;
@@ -434,8 +371,6 @@
     .story { gap: 16px; margin-top: 26px; }
     .support { margin-top: 40px; }
     .fin { margin-top: 36px; }
-    .clue-summary { padding: 18px 16px; margin-top: 36px; }
-    .clue-summary .progress-mini { width: 100px; }
     .fourth-wall .line { letter-spacing: .16em; text-indent: .16em; }
     .fourth-wall .line.final { letter-spacing: .5em; text-indent: .5em; }
   }
@@ -459,9 +394,6 @@
       <p class="final">而常海军等人仍逍遥法外，甚至越爬越高，青山市的天彻底黑了。</p>
     </div>
 
-    <!-- 线索完整度 -->
-    <div class="clue-summary" id="clueSummary"></div>
-
     <div class="support" id="support">
       <div class="support-line"></div>
       <p class="support-text">喜欢本游戏的话可以支持一下作者哦❤️</p>
@@ -474,7 +406,6 @@
     <div class="fin" id="fin">— 完 —</div>
   </main>
 
-  <!-- 破第四面墙 -->
   <div class="fourth-wall" id="fourthWall">
     <div class="line" id="line1">你在屏幕前，看着这一切。</div>
     <div class="line" id="line2">你搜了那么多帖子，看了那么多线索，</div>
@@ -491,14 +422,13 @@
   const CONFIG = {
     startDelay:     1400,
     step:            900,
-    toWallDelay:    5500,   /* ← 从 3000 延长到 5500，给玩家看完整度的时间 */
+    toWallDelay:    5500,
     firstLineDelay: 2500,
     lineGap:        3500,
     hintDelay:      4000
   };
 
   const paragraphs = document.querySelectorAll('#story p');
-  const clueSummary = document.getElementById('clueSummary');
   const support    = document.getElementById('support');
   const fin        = document.getElementById('fin');
   const wall       = document.getElementById('fourthWall');
@@ -510,11 +440,9 @@
 
   const afterStory = CONFIG.startDelay + paragraphs.length * CONFIG.step;
 
-  setTimeout(() => clueSummary.classList.add('show'), afterStory + 500);
-  setTimeout(() => support.classList.add('show'),     afterStory + 900);
-  setTimeout(() => fin.classList.add('show'),         afterStory + 1900);
+  setTimeout(() => support.classList.add('show'), afterStory + 500);
+  setTimeout(() => fin.classList.add('show'),     afterStory + 1500);
 
-  /* ============ 破第四面墙 ============ */
   const BASE = afterStory + CONFIG.toWallDelay;
 
   setTimeout(() => {
@@ -553,64 +481,6 @@
     setTimeout(() => wall.classList.remove('reject'), 320);
   });
 
-})();
-
-/* ============ 线索完整度 ============ */
-(function () {
-  const CLUE_KEYS = [
-    'searched_常峻硕','searched_高梓睿','searched_二年八班',
-    'searched_二年七班','searched_奥赛','searched_王小满',
-    'visited_fugao1','visited_fugao2','visited_school',
-    'visited_menu','visited_contact','visited_record',
-    'visited_red','visited_case','visited_evidence'
-  ];
-  const CLUE_NAMES = {
-    'searched_常峻硕':'搜过「常峻硕」',
-    'searched_高梓睿':'搜过「高梓睿」',
-    'searched_二年八班':'搜过「二年八班」',
-    'searched_二年七班':'搜过「二年七班」',
-    'searched_奥赛':'搜过「奥赛」',
-    'searched_王小满':'搜过「王小满」',
-    'visited_fugao1':'打开过常峻硕讣告',
-    'visited_fugao2':'打开过高梓睿讣告',
-    'visited_school':'看过学校官网',
-    'visited_menu':'看过柳巷食堂菜单',
-    'visited_contact':'看过柳巷食堂联系页',
-    'visited_record':'听过录音',
-    'visited_red':'看过林圻私密帖',
-    'visited_case':'查过案件编号',
-    'visited_evidence':'看过张乔晞材料'
-  };
-
-  let clues = {};
-  try{ clues = JSON.parse(localStorage.getItem('qs_clues') || '{}'); }catch(e){}
-
-  const foundKeys = CLUE_KEYS.filter(k => clues[k] === 1);
-  const missing   = CLUE_KEYS.filter(k => clues[k] !== 1);
-  const percent   = Math.round(foundKeys.length / CLUE_KEYS.length * 100);
-
-  const el = document.getElementById('clueSummary');
-  if (!el) return;
-
-  let fillColor = 'linear-gradient(90deg,#5fa878,#8fd8a8)';
-  if (percent < 40) fillColor = 'linear-gradient(90deg,#a8331f,#c94a2a)';
-  else if (percent < 80) fillColor = 'linear-gradient(90deg,#c9a227,#e5c76a)';
-
-  const missingText = missing.length
-    ? `<span class="miss">你错过了：${missing.map(k => '「' + CLUE_NAMES[k] + '」').join('、')}</span>`
-    : '<span class="miss" style="color:#5fa878;">你掌握了所有关键线索。</span>';
-
-  el.innerHTML = `
-    线索完整度 <b>${percent}%</b>
-    <span class="progress-mini"><span class="fill" id="miniFill" style="background:${fillColor}"></span></span>
-    <span style="font-size:11px;color:#5a636c;">(${foundKeys.length} / ${CLUE_KEYS.length})</span>
-    ${missingText}
-  `;
-
-  setTimeout(() => {
-    const f = document.getElementById('miniFill');
-    if (f) f.style.width = percent + '%';
-  }, 400);
 })();
 </script>
 
