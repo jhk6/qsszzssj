@@ -161,6 +161,78 @@
 
   .story p:hover { color: #cdd5dc; }
 
+  /* ============ 线索完整度 ============ */
+  .clue-summary {
+    margin-top: 46px;
+    width: 100%;
+    padding: 22px 24px;
+    font-size: 12.5px;
+    color: #6e7a85;
+    letter-spacing: .08em;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1.6s ease, transform 1.6s ease;
+    border-top: 1px dashed rgba(120, 150, 175, .18);
+    border-bottom: 1px dashed rgba(120, 150, 175, .18);
+    line-height: 2;
+    text-align: center;
+  }
+
+  .clue-summary.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .clue-summary b {
+    color: #a8b3bc;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 4px;
+    font-family: Consolas, monospace;
+    letter-spacing: .02em;
+  }
+
+  .clue-summary .progress-mini {
+    display: inline-block;
+    width: 160px;
+    height: 3px;
+    background: rgba(120, 150, 175, .15);
+    border-radius: 2px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin: 0 10px;
+    position: relative;
+    top: -1px;
+  }
+
+  .clue-summary .progress-mini .fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #5fa878, #8fd8a8);
+    transition: width 1.4s cubic-bezier(.2, .7, .3, 1);
+  }
+
+  .clue-summary .miss {
+    display: block;
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: #5a4040;
+    letter-spacing: .05em;
+    line-height: 2;
+  }
+
+  .clue-summary .miss b {
+    display: inline;
+    color: #7a5050;
+    font-weight: 400;
+    font-size: 11.5px;
+    margin: 0 2px;
+    font-family: inherit;
+    letter-spacing: inherit;
+  }
+
   /* 支持作者区 */
   .support {
     margin-top: 52px;
@@ -233,6 +305,8 @@
     .story { gap: 16px; margin-top: 26px; }
     .support { margin-top: 40px; }
     .fin { margin-top: 36px; }
+    .clue-summary { padding: 18px 16px; margin-top: 36px; }
+    .clue-summary .progress-mini { width: 100px; }
   }
 </style>
 </head>
@@ -252,9 +326,12 @@
       <p>看见林圻后，你并没有生气，而是耐心询问林圻最近是不是有什么烦心事。林圻讲出了所有实情。</p>
       <p>你耐心开导弟弟，并带着弟弟去警察局自首。最后，弟弟三人因为是正当防卫，所以没有受到处罚。</p>
       <p>弟弟变得像从前一样阳光开朗，成绩依旧名列前茅，你们的感情变得更加和睦。</p>
-      <p>并且，你认识一位省公安厅的老领导，你向他举报了青山市市长和副市长、学校校长、公安局局长和两位副局长，最后等待着他们的，将是法律的制裁。</p>
+      <p>并且，你想起张乔晞那份补充材料里提到的省厅周振国副总队长——他是你大学时的导师。你联系了他，向他举报了青山市市长和副市长、学校校长、公安局局长和两位副局长，最后等待着他们的，将是法律的制裁。</p>
       <p>你将这个事件写进了你的小说里，你的小说火遍全国，你捞了一大笔钱，买了一套大平层，从此你带着家人过上了幸福美满的生活。</p>
     </div>
+
+    <!-- 线索完整度 -->
+    <div class="clue-summary" id="clueSummary"></div>
 
     <div class="support" id="support">
       <div class="support-line"></div>
@@ -269,13 +346,15 @@
   </main>
 
 <script>
+  /* ============ 正文逐段淡入 ============ */
   (function () {
     const paragraphs = document.querySelectorAll('#story p');
+    const clueSummary = document.getElementById('clueSummary');
     const support    = document.getElementById('support');
     const fin        = document.getElementById('fin');
 
-    const START_DELAY = 1400;   // 首段出现延迟
-    const STEP        = 700;    // 段落间隔
+    const START_DELAY = 1400;
+    const STEP        = 700;
 
     paragraphs.forEach((p, i) => {
       setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
@@ -283,8 +362,67 @@
 
     const afterStory = START_DELAY + paragraphs.length * STEP;
 
-    setTimeout(() => support.classList.add('show'), afterStory + 400);
-    setTimeout(() => fin.classList.add('show'), afterStory + 1400);
+    setTimeout(() => clueSummary.classList.add('show'), afterStory + 500);
+    setTimeout(() => support.classList.add('show'), afterStory + 900);
+    setTimeout(() => fin.classList.add('show'), afterStory + 1900);
+  })();
+
+  /* ============ 线索完整度 ============ */
+  (function () {
+    const CLUE_KEYS = [
+      'searched_常峻硕','searched_高梓睿','searched_二年八班',
+      'searched_二年七班','searched_奥赛','searched_王小满',
+      'visited_fugao1','visited_fugao2','visited_school',
+      'visited_menu','visited_contact','visited_record',
+      'visited_red','visited_case','visited_evidence'
+    ];
+    const CLUE_NAMES = {
+      'searched_常峻硕':'搜过「常峻硕」',
+      'searched_高梓睿':'搜过「高梓睿」',
+      'searched_二年八班':'搜过「二年八班」',
+      'searched_二年七班':'搜过「二年七班」',
+      'searched_奥赛':'搜过「奥赛」',
+      'searched_王小满':'搜过「王小满」',
+      'visited_fugao1':'打开过常峻硕讣告',
+      'visited_fugao2':'打开过高梓睿讣告',
+      'visited_school':'看过学校官网',
+      'visited_menu':'看过柳巷食堂菜单',
+      'visited_contact':'看过柳巷食堂联系页',
+      'visited_record':'听过录音',
+      'visited_red':'看过林圻私密帖',
+      'visited_case':'查过案件编号',
+      'visited_evidence':'看过张乔晞材料'
+    };
+
+    let clues = {};
+    try{ clues = JSON.parse(localStorage.getItem('qs_clues') || '{}'); }catch(e){}
+
+    const foundKeys = CLUE_KEYS.filter(k => clues[k] === 1);
+    const missing   = CLUE_KEYS.filter(k => clues[k] !== 1);
+    const percent   = Math.round(foundKeys.length / CLUE_KEYS.length * 100);
+
+    const el = document.getElementById('clueSummary');
+    if (!el) return;
+
+    let fillColor = 'linear-gradient(90deg,#5fa878,#8fd8a8)';
+    if (percent < 40) fillColor = 'linear-gradient(90deg,#a8331f,#c94a2a)';
+    else if (percent < 80) fillColor = 'linear-gradient(90deg,#c9a227,#e5c76a)';
+
+    const missingText = missing.length
+      ? `<span class="miss">你错过了：${missing.map(k => '「' + CLUE_NAMES[k] + '」').join('、')}</span>`
+      : '<span class="miss" style="color:#5fa878;">你掌握了所有关键线索。</span>';
+
+    el.innerHTML = `
+      线索完整度 <b>${percent}%</b>
+      <span class="progress-mini"><span class="fill" id="miniFill" style="background:${fillColor}"></span></span>
+      <span style="font-size:11px;color:#5a636c;">(${foundKeys.length} / ${CLUE_KEYS.length})</span>
+      ${missingText}
+    `;
+
+    setTimeout(() => {
+      const f = document.getElementById('miniFill');
+      if (f) f.style.width = percent + '%';
+    }, 400);
   })();
 </script>
 

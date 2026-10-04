@@ -34,7 +34,6 @@
     z-index: 0;
   }
 
-  /* 颗粒噪点 */
   .bg::after {
     content: "";
     position: absolute;
@@ -55,7 +54,6 @@
     90% { transform: translate(-2%, -2%); }
   }
 
-  /* 暗角 */
   .vignette {
     position: fixed;
     inset: 0;
@@ -64,7 +62,6 @@
     z-index: 1;
   }
 
-  /* 极淡扫描线 */
   .scanlines {
     position: fixed;
     inset: 0;
@@ -122,7 +119,6 @@
 
   @keyframes fadeIn { to { opacity: 1; } }
 
-  /* 故事文本 */
   .story {
     width: 100%;
     margin-top: 26px;
@@ -219,6 +215,43 @@
     color: #5a636c;
     text-shadow: 0 0 12px rgba(0, 0, 0, .8);
   }
+
+  /* ★ 重新开始按钮 */
+  .restart-btn {
+    margin-top: 6px;
+    font-family: inherit;
+    font-size: clamp(11px, 1.2vw, 12.5px);
+    letter-spacing: .1em;
+    color: #4a5560;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    padding: 4px 6px;
+    cursor: pointer;
+    outline: none;
+    transition: color .3s ease, border-color .3s ease;
+  }
+
+  .restart-btn:hover {
+    color: #7a8894;
+    border-bottom-color: rgba(120, 140, 160, .4);
+  }
+
+  .restart-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* 进度提示（有存档时显示） */
+  .save-hint {
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: #4a5560;
+    opacity: 0;
+    transition: opacity .5s ease;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+
+  .save-hint.show { opacity: .8; }
 
   /* ============ 支持作者区 ============ */
   .support {
@@ -363,8 +396,8 @@
 
     <div class="story" id="story">
       <p>我叫林逸，是一位作家，从小在农村长大，后来为了陪我弟读书全家搬到青山市。</p>
-      <p>我有一个弟弟，叫林圻，小学初中都是在农村上的，经过不懈努力考上了青山市实验高中。</p>
-      <p>最近，青山市实验高中发生了学生自杀事件。我在校园论坛里看到有人讨论这件事，就向我弟弟打听，弟弟却只字不提，刻意回避这件事。</p>
+      <p>我有一个弟弟，叫林圻，小学初中都是在农村上的，经过不懈努力考上了青山市实验中学。</p>
+      <p>最近，青山市实验中学发生了学生自杀事件。我在校园论坛里看到有人讨论这件事，就向我弟弟打听，弟弟却只字不提，刻意回避这件事。</p>
       <p>而且我发现我的弟弟最近的表现十分奇怪，完全没有了往日的活力，整天精神萎靡。</p>
       <p>我觉得这件事十分蹊跷，可以作为我的写作素材，于是我开始着手调查这件事。</p>
     </div>
@@ -372,6 +405,8 @@
     <div class="enter-wrap" id="enterWrap">
       <button class="enter-btn" id="enterBtn">点击进入论坛</button>
       <p class="hint">论坛中部分帖子被隐藏，只能通过搜索找到</p>
+      <p class="save-hint" id="saveHint"></p>
+      <button class="restart-btn" id="restartBtn">重新开始调查</button>
     </div>
 
     <!-- 支持作者区 -->
@@ -397,43 +432,74 @@
     const enterWrap  = document.getElementById('enterWrap');
     const support    = document.getElementById('support');
     const enterBtn   = document.getElementById('enterBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const saveHint   = document.getElementById('saveHint');
     const overlay    = document.getElementById('overlay');
     const main       = document.getElementById('main');
 
-    const START_DELAY = 900;   // 首段出现延迟
-    const STEP        = 620;   // 段落间隔
+    const START_DELAY = 900;
+    const STEP        = 620;
 
-    // 逐段淡入
     paragraphs.forEach((p, i) => {
       setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
     });
 
-    // 按钮浮现
     const btnDelay = START_DELAY + paragraphs.length * STEP + 400;
     setTimeout(() => enterWrap.classList.add('show'), btnDelay);
-
-    // 支持区最后浮现
     setTimeout(() => support.classList.add('show'), btnDelay + 600);
 
-    // 点击进入论坛
+    /* ============ 显示"上次进度" ============ */
+    try{
+      const clues = JSON.parse(localStorage.getItem('qs_clues') || '{}');
+      const keys = Object.keys(clues).filter(k => clues[k] === 1);
+      if (keys.length > 0){
+        setTimeout(() => {
+          saveHint.textContent = `检测到上次进度（已收集 ${keys.length} 条线索）`;
+          saveHint.classList.add('show');
+        }, btnDelay + 800);
+      }
+    }catch(e){}
+
+    /* ============ 进入论坛（保留进度） ============ */
     let entering = false;
-    enterBtn.addEventListener('click', function () {
+    function goForum(){
       if (entering) return;
       entering = true;
-
       main.style.opacity = '0';
       main.style.filter = 'blur(6px)';
+      setTimeout(() => overlay.classList.add('active'), 260);
+      setTimeout(() => { window.location.href = 'https://qsszlt.pages.dev'; }, 1800);
+    }
 
-      setTimeout(() => {
-        overlay.classList.add('active');
-      }, 260);
+    enterBtn.addEventListener('click', goForum);
 
-      setTimeout(() => {
-        window.location.href = 'https://qsszlt.pages.dev';
-      }, 1800);
+    /* ============ 重新开始（清空进度） ============ */
+    restartBtn.addEventListener('click', function(){
+      if (entering) return;
+
+      /* 如果没有进度，直接进入 */
+      let hasSave = false;
+      try{
+        const clues = JSON.parse(localStorage.getItem('qs_clues') || '{}');
+        hasSave = Object.keys(clues).filter(k => clues[k] === 1).length > 0;
+      }catch(e){}
+
+      if (!hasSave){
+        goForum();
+        return;
+      }
+
+      /* 有进度 → 弹确认 */
+      const ok = window.confirm(
+        '重新开始调查会清空你之前收集的所有线索。\n\n确定吗？'
+      );
+      if (ok){
+        try{ localStorage.removeItem('qs_clues'); }catch(e){}
+        goForum();
+      }
     });
 
-    // 键盘 Enter / 空格 也可触发
+    /* ============ 键盘 ============ */
     document.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && !entering) {
         enterBtn.click();

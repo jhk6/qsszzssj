@@ -23,7 +23,6 @@
     overflow-x: hidden;
   }
 
-  /* ============ 背景层（更冷、更灰、更沉） ============ */
   .bg {
     position: fixed;
     inset: 0;
@@ -77,7 +76,6 @@
     z-index: 1;
   }
 
-  /* ============ 主内容 ============ */
   main {
     position: relative;
     z-index: 2;
@@ -132,7 +130,6 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* 正文 */
   .story {
     margin-top: 34px;
     width: 100%;
@@ -161,7 +158,6 @@
 
   .story p:hover { color: #bcc4cc; }
 
-  /* 弟弟自杀那一句 */
   .story p.death {
     color: #a89a9a;
     font-weight: 500;
@@ -170,7 +166,6 @@
   }
   .story p.death.show { color: #c2a8a8; }
 
-  /* 最后一句 */
   .story p.final {
     color: #b9706f;
     font-weight: 500;
@@ -179,7 +174,68 @@
   }
   .story p.final.show { color: #d98c8a; }
 
-  /* 支持作者区 */
+  /* ============ 线索完整度 ============ */
+  .clue-summary {
+    margin-top: 46px;
+    width: 100%;
+    padding: 22px 24px;
+    font-size: 12.5px;
+    color: #6e7a85;
+    letter-spacing: .08em;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1.6s ease, transform 1.6s ease;
+    border-top: 1px dashed rgba(120, 150, 175, .18);
+    border-bottom: 1px dashed rgba(120, 150, 175, .18);
+    line-height: 2;
+    text-align: center;
+  }
+
+  .clue-summary.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .clue-summary b {
+    color: #a8b3bc;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 4px;
+    font-family: Consolas, monospace;
+    letter-spacing: .02em;
+  }
+
+  .clue-summary .progress-mini {
+    display: inline-block;
+    width: 160px;
+    height: 3px;
+    background: rgba(120, 150, 175, .15);
+    border-radius: 2px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin: 0 10px;
+    position: relative;
+    top: -1px;
+  }
+
+  .clue-summary .progress-mini .fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #5fa878, #8fd8a8);
+    transition: width 1.4s cubic-bezier(.2, .7, .3, 1);
+  }
+
+  .clue-summary .miss {
+    display: block;
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: #5a4040;
+    letter-spacing: .05em;
+    line-height: 2;
+  }
+
   .support {
     margin-top: 52px;
     width: 100%;
@@ -233,7 +289,6 @@
     text-shadow: 0 0 14px rgba(140, 200, 235, .55);
   }
 
-  /* 结尾小字 */
   .fin {
     margin-top: 46px;
     font-size: clamp(12px, 1.3vw, 13.5px);
@@ -246,11 +301,143 @@
 
   .fin.show { opacity: 1; }
 
+  /* ============ 破第四面墙遮罩 ============ */
+  .fourth-wall {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease;
+    cursor: default;
+    overflow: hidden;
+  }
+
+  .fourth-wall.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .fourth-wall.can-leave {
+    cursor: pointer;
+  }
+
+  .fourth-wall.reject {
+    animation: rejectShake .32s ease;
+  }
+
+  @keyframes rejectShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+  }
+
+  .fourth-wall::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(60, 8, 8, .28), transparent 70%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.85) 100%);
+    pointer-events: none;
+  }
+
+  .fourth-wall::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.015) 0px,
+      rgba(255,255,255,.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: .5;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .fourth-wall .line {
+    position: relative;
+    z-index: 3;
+    font-family: "Songti SC", "SimSun", "Noto Serif SC", Georgia, serif;
+    font-size: clamp(15px, 1.9vw, 19px);
+    line-height: 2.6;
+    color: #c4c4c4;
+    text-align: center;
+    letter-spacing: .22em;
+    text-indent: .22em;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 2s ease, transform 2s ease;
+    margin: 10px 0;
+    text-shadow: 0 0 24px rgba(180, 180, 180, .12);
+  }
+
+  .fourth-wall .line.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fourth-wall .line.final {
+    margin-top: 48px;
+    font-size: clamp(12.5px, 1.4vw, 14.5px);
+    color: #6a4a4a;
+    letter-spacing: .7em;
+    text-indent: .7em;
+    text-shadow: 0 0 30px rgba(120, 40, 40, .35);
+  }
+
+  .fourth-wall .line.final.show {
+    color: #8a5a5a;
+  }
+
+  .skip-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11.5px;
+    letter-spacing: .5em;
+    text-indent: .5em;
+    color: #3a3a3a;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    opacity: 0;
+    transition: opacity 2s ease;
+    z-index: 3;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .skip-hint.show {
+    opacity: 1;
+    animation: hintPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes hintPulse {
+    0%, 100% { opacity: .25; }
+    50% { opacity: .75; }
+  }
+
   @media (max-width: 520px) {
     body { padding: 30px 14px; }
     .story { gap: 16px; margin-top: 26px; }
     .support { margin-top: 40px; }
     .fin { margin-top: 36px; }
+    .clue-summary { padding: 18px 16px; margin-top: 36px; }
+    .clue-summary .progress-mini { width: 100px; }
+    .fourth-wall .line { letter-spacing: .16em; text-indent: .16em; }
+    .fourth-wall .line.final { letter-spacing: .5em; text-indent: .5em; }
   }
 </style>
 </head>
@@ -272,6 +459,9 @@
       <p class="final">而常海军等人仍逍遥法外，甚至越爬越高，青山市的天彻底黑了。</p>
     </div>
 
+    <!-- 线索完整度 -->
+    <div class="clue-summary" id="clueSummary"></div>
+
     <div class="support" id="support">
       <div class="support-line"></div>
       <p class="support-text">喜欢本游戏的话可以支持一下作者哦❤️</p>
@@ -284,24 +474,144 @@
     <div class="fin" id="fin">— 完 —</div>
   </main>
 
+  <!-- 破第四面墙 -->
+  <div class="fourth-wall" id="fourthWall">
+    <div class="line" id="line1">你在屏幕前，看着这一切。</div>
+    <div class="line" id="line2">你搜了那么多帖子，看了那么多线索，</div>
+    <div class="line" id="line3">然后……你什么都没做。</div>
+    <div class="line" id="line4">林圻不是死于常家。</div>
+    <div class="line" id="line5">他死于所有"看过但没行动"的人。</div>
+    <div class="line final" id="line6">包括你。</div>
+    <div class="skip-hint" id="skipHint">点击任意处返回</div>
+  </div>
+
 <script>
-  (function () {
-    const paragraphs = document.querySelectorAll('#story p');
-    const support    = document.getElementById('support');
-    const fin        = document.getElementById('fin');
+(function () {
 
-    const START_DELAY = 1400;   // 首段出现延迟
-    const STEP        = 900;    // 段落间隔（更慢，沉重）
+  const CONFIG = {
+    startDelay:     1400,
+    step:            900,
+    toWallDelay:    5500,   /* ← 从 3000 延长到 5500，给玩家看完整度的时间 */
+    firstLineDelay: 2500,
+    lineGap:        3500,
+    hintDelay:      4000
+  };
 
-    paragraphs.forEach((p, i) => {
-      setTimeout(() => p.classList.add('show'), START_DELAY + i * STEP);
-    });
+  const paragraphs = document.querySelectorAll('#story p');
+  const clueSummary = document.getElementById('clueSummary');
+  const support    = document.getElementById('support');
+  const fin        = document.getElementById('fin');
+  const wall       = document.getElementById('fourthWall');
+  const hint       = document.getElementById('skipHint');
 
-    const afterStory = START_DELAY + paragraphs.length * STEP;
+  paragraphs.forEach((p, i) => {
+    setTimeout(() => p.classList.add('show'), CONFIG.startDelay + i * CONFIG.step);
+  });
 
-    setTimeout(() => support.classList.add('show'), afterStory + 500);
-    setTimeout(() => fin.classList.add('show'), afterStory + 1500);
-  })();
+  const afterStory = CONFIG.startDelay + paragraphs.length * CONFIG.step;
+
+  setTimeout(() => clueSummary.classList.add('show'), afterStory + 500);
+  setTimeout(() => support.classList.add('show'),     afterStory + 900);
+  setTimeout(() => fin.classList.add('show'),         afterStory + 1900);
+
+  /* ============ 破第四面墙 ============ */
+  const BASE = afterStory + CONFIG.toWallDelay;
+
+  setTimeout(() => {
+    wall.classList.add('show');
+  }, BASE);
+
+  const LINE_IDS = ['line1', 'line2', 'line3', 'line4', 'line5', 'line6'];
+  const lineTimes = LINE_IDS.map((_, i) =>
+    BASE + CONFIG.firstLineDelay + i * CONFIG.lineGap
+  );
+
+  LINE_IDS.forEach((id, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('show');
+    }, lineTimes[i]);
+  });
+
+  const CAN_LEAVE_AT = lineTimes[lineTimes.length - 1] + CONFIG.hintDelay;
+  let canLeave = false;
+
+  setTimeout(() => {
+    canLeave = true;
+    wall.classList.add('can-leave');
+    hint.classList.add('show');
+  }, CAN_LEAVE_AT);
+
+  wall.addEventListener('click', () => {
+    if (canLeave) {
+      window.location.href = 'choose.html';
+      return;
+    }
+    wall.classList.remove('reject');
+    void wall.offsetWidth;
+    wall.classList.add('reject');
+    setTimeout(() => wall.classList.remove('reject'), 320);
+  });
+
+})();
+
+/* ============ 线索完整度 ============ */
+(function () {
+  const CLUE_KEYS = [
+    'searched_常峻硕','searched_高梓睿','searched_二年八班',
+    'searched_二年七班','searched_奥赛','searched_王小满',
+    'visited_fugao1','visited_fugao2','visited_school',
+    'visited_menu','visited_contact','visited_record',
+    'visited_red','visited_case','visited_evidence'
+  ];
+  const CLUE_NAMES = {
+    'searched_常峻硕':'搜过「常峻硕」',
+    'searched_高梓睿':'搜过「高梓睿」',
+    'searched_二年八班':'搜过「二年八班」',
+    'searched_二年七班':'搜过「二年七班」',
+    'searched_奥赛':'搜过「奥赛」',
+    'searched_王小满':'搜过「王小满」',
+    'visited_fugao1':'打开过常峻硕讣告',
+    'visited_fugao2':'打开过高梓睿讣告',
+    'visited_school':'看过学校官网',
+    'visited_menu':'看过柳巷食堂菜单',
+    'visited_contact':'看过柳巷食堂联系页',
+    'visited_record':'听过录音',
+    'visited_red':'看过林圻私密帖',
+    'visited_case':'查过案件编号',
+    'visited_evidence':'看过张乔晞材料'
+  };
+
+  let clues = {};
+  try{ clues = JSON.parse(localStorage.getItem('qs_clues') || '{}'); }catch(e){}
+
+  const foundKeys = CLUE_KEYS.filter(k => clues[k] === 1);
+  const missing   = CLUE_KEYS.filter(k => clues[k] !== 1);
+  const percent   = Math.round(foundKeys.length / CLUE_KEYS.length * 100);
+
+  const el = document.getElementById('clueSummary');
+  if (!el) return;
+
+  let fillColor = 'linear-gradient(90deg,#5fa878,#8fd8a8)';
+  if (percent < 40) fillColor = 'linear-gradient(90deg,#a8331f,#c94a2a)';
+  else if (percent < 80) fillColor = 'linear-gradient(90deg,#c9a227,#e5c76a)';
+
+  const missingText = missing.length
+    ? `<span class="miss">你错过了：${missing.map(k => '「' + CLUE_NAMES[k] + '」').join('、')}</span>`
+    : '<span class="miss" style="color:#5fa878;">你掌握了所有关键线索。</span>';
+
+  el.innerHTML = `
+    线索完整度 <b>${percent}%</b>
+    <span class="progress-mini"><span class="fill" id="miniFill" style="background:${fillColor}"></span></span>
+    <span style="font-size:11px;color:#5a636c;">(${foundKeys.length} / ${CLUE_KEYS.length})</span>
+    ${missingText}
+  `;
+
+  setTimeout(() => {
+    const f = document.getElementById('miniFill');
+    if (f) f.style.width = percent + '%';
+  }, 400);
+})();
 </script>
 
 </body>
